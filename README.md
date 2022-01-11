@@ -8,7 +8,7 @@ Ensure you have a dockerfile prepared based on chip-build-vscode.
 Something like below (with the proper github checkout path set - this just starts a permanent background process):
 
 ```sh
-docker run -dt --name bld_vscode --volume $HOME/devel/connectedhomeip:/workspace connectedhomeip/chip-build-vscode:0.5.43 /usr/bin/top
+docker run -dt --name bld_vscode --volume $HOME/devel/connectedhomeip:/workspace connectedhomeip/chip-build-vscode:0.5.43 /bin/bash
 ```
 
 Then install:

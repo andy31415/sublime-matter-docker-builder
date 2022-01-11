@@ -9,6 +9,8 @@ import re
 FILE_REGEX = r"^INFO *(.*[^:]):(\d+):(\d+): (?:fatal )?((?:error|warning): .+)$"
 MATCH_DEBUG = False
 
+GLOB_TARGET = "CUSTOM GLOB"
+
 def per_line(text):
     while '\n' in text:
         idx = text.find('\n')
@@ -27,6 +29,7 @@ class MatterDockerBuild(sublime_plugin.WindowCommand):
     panel_lock = threading.Lock()
     build_targets = None
     last_selected_index = -1
+    last_glob_expression = ""
 
     def targets(self):
         if self.build_targets is None:
@@ -39,12 +42,15 @@ class MatterDockerBuild(sublime_plugin.WindowCommand):
                 else:
                     self.build_targets.append([t,])
 
+            # Also allow custom globbing
+            self.build_targets.append([GLOB_TARGET, "Enter a custom glob using * and {} (NOT a regex!)"])
+
         return self.build_targets
 
     def compute_build_targets(self):
         items = subprocess.check_output([
             'docker', 'exec', '-w', '/workspace', 'bld_vscode', '/bin/bash', '-c',
-            'source ./scripts/activate.sh 2>&1 >/dev/null && ./scripts/build/build_examples.py --log-level fatal targets']).split(b'\n')
+            'source ./scripts/activate.sh >/dev/null 2>&1 && ./scripts/build/build_examples.py --log-level fatal targets']).split(b'\n')
 
         for item in items:
             yield item.decode('utf8')
@@ -64,7 +70,17 @@ class MatterDockerBuild(sublime_plugin.WindowCommand):
         self.last_selected_index = target_index
         target = self.targets()[target_index][0]
 
-        self.run_build(target)
+        if target == GLOB_TARGET:
+            self.window.show_input_panel("Target GLOB expression", self.last_glob_expression,
+                                         on_done = self.target_glob_done,
+                                         on_change = None,
+                                         on_cancel = None)
+        else:
+            self.run_build(target)
+
+    def target_glob_done(self, target_glob):
+        self.last_glob_expression = target_glob
+        self.run_build(target_glob)
 
 
     def run(self, kill=False):

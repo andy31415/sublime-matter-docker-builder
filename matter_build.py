@@ -11,6 +11,10 @@ FILE_REGEX = r"^INFO *(.*[^:]):(\d+):(\d+): (?:fatal )?((?:error|warning): .+)$"
 CHECKOUT_ROOT_PATH="/home/andrei/devel/connectedhomeip/"
 DOCKER_MAPPED_PATH="/workspace/"
 
+# DOCKER_EXEC_BASH_STR= "docker exec -w /workspace bld_vscode /bin/bash -c"
+DOCKER_EXEC_BASH_STR= "podman exec -w /workspace bld_vscode /bin/bash -c"
+
+
 GLOB_TARGET = "CUSTOM GLOB"
 
 class MatterDockerBuild(sublime_plugin.WindowCommand):
@@ -41,9 +45,9 @@ class MatterDockerBuild(sublime_plugin.WindowCommand):
         return self.build_targets
 
     def compute_build_targets(self):
-        items = subprocess.check_output([
-            'docker', 'exec', '-w', '/workspace', 'bld_vscode', '/bin/bash', '-c',
-            'source ./scripts/activate.sh >/dev/null 2>&1 && ./scripts/build/build_examples.py --log-level fatal targets']).split(b'\n')
+        items = subprocess.check_output(
+                DOCKER_EXEC_BASH_STR.split() +
+                ['source ./scripts/activate.sh >/dev/null 2>&1 && ./scripts/build/build_examples.py --log-level fatal targets']).split(b'\n')
 
         for item in items:
             yield item.decode('utf8')
@@ -132,7 +136,7 @@ class MatterDockerBuild(sublime_plugin.WindowCommand):
 
         self.queue_write("Starting build for %s\n" % target)
 
-        args ="docker exec -w /workspace bld_vscode /bin/bash -c".split()
+        args = DOCKER_EXEC_BASH_STR.split()
 
         # TODO: this would work if we would not be using the quickselect panel.
         #       We should have a 'GLOB' in  quickselect which provides a glob prompt
@@ -156,7 +160,7 @@ class MatterDockerBuild(sublime_plugin.WindowCommand):
         ).start()
 
     def read_handle(self, handle):
-        print("Matter docker build run loop starting")
+        print("Matter build run loop starting")
         chunk_size = 2 ** 13
         out = b''
         while True:
@@ -188,7 +192,7 @@ class MatterDockerBuild(sublime_plugin.WindowCommand):
                     msg = 'Finished'
                 self.queue_write('\n[%s]' % msg)
                 break
-        print("Matter docker build run loop completed")
+        print("Matter build run loop completed")
 
         with self.panel_lock:
             regions = self.panel.find_all(FILE_REGEX)

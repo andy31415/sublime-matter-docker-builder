@@ -5,11 +5,20 @@ This contains a simple implementation of a sublime build system for matter
 # Installation
 
 Ensure you have a dockerfile prepared based on chip-build-vscode. 
-Something like below (with the proper github checkout path set - this just starts a permanent background process):
+Note that this uses [podman](https://podman.io) for easier control of permissions (don't want to output files owned by root).
 
 ```sh
-docker run -dt --name bld_vscode --volume $HOME/devel/connectedhomeip:/workspace connectedhomeip/chip-build-vscode:0.5.43 /bin/bash
+podman run --privileged -dt                                   \
+    --storage-opt overlay.ignore_chown_errors=true            \
+    --name bld_vscode                                         \
+    --volume $HOME/devel/connectedhomeip:/workspace           \
+    docker.io/connectedhomeip/chip-build-vscode:0.5.43        \
+    /bin/bash
 ```
+
+Note the `ignore_chown_errors` flag: I have not been able to actually fetch
+the vscode image without it, but it also means some uid mappings will not be
+enforced in the container  (may not matter much as we want a regular user build).
 
 Then install:
 

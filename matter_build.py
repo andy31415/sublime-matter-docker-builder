@@ -7,18 +7,11 @@ import os
 import re
 
 FILE_REGEX = r"^INFO *(.*[^:]):(\d+):(\d+): (?:fatal )?((?:error|warning): .+)$"
-MATCH_DEBUG = False
+
+CHECKOUT_ROOT_PATH="/home/andrei/devel/connectedhomeip/"
+DOCKER_MAPPED_PATH="/workspace/"
 
 GLOB_TARGET = "CUSTOM GLOB"
-
-def per_line(text):
-    while '\n' in text:
-        idx = text.find('\n')
-        yield text[:idx + 1]
-        text = text[idx + 1:]
-
-    if text:
-       yield text
 
 class MatterDockerBuild(sublime_plugin.WindowCommand):
 
@@ -123,7 +116,7 @@ class MatterDockerBuild(sublime_plugin.WindowCommand):
 
             # TODO: this should be dynamic by project directory or given via build
             # configuration.
-            settings.set('result_base_dir', '/home/andrei/devel/connectedhomeip/out/fake')
+            settings.set('result_base_dir', '%s/out/fake' % CHECKOUT_ROOT_PATH)
 
 
             # do not attempt to interpret syntax
@@ -208,10 +201,6 @@ class MatterDockerBuild(sublime_plugin.WindowCommand):
 
     def do_write(self, text):
         with self.panel_lock:
-            for t in per_line(text):
-              self.panel.run_command('append', {'characters': t, 'force': True, 'scroll_to_end': True})
-
-              if MATCH_DEBUG:
-                m = re.compile(FILE_REGEX).match(t)
-                if m:
-                  print("  Detected build error: %r" % (m.groups(), ))
+            # This makes errors clickable
+            text = text.replace(DOCKER_MAPPED_PATH, CHECKOUT_ROOT_PATH)
+            self.panel.run_command('append', {'characters': text, 'force': True, 'scroll_to_end': True})

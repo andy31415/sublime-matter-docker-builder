@@ -1,0 +1,11 @@
+{
+    "target": "matter_docker_build",
+    "selector": "source.mylang",
+    "cancel": {"kill": true},
+    "variants": [
+        {
+            "name": "Build",
+            "docker": true
+        },
+    ]
+}

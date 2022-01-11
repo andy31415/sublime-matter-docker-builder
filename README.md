@@ -20,6 +20,13 @@ Note the `ignore_chown_errors` flag: I have not been able to actually fetch
 the vscode image without it, but it also means some uid mappings will not be
 enforced in the container  (may not matter much as we want a regular user build).
 
+You may also wan to run to prepopulate cipd/pwenv (without it, the first
+sublime attempt to show available build targets will be very slow):
+
+```
+podman exec -it bld_vscode bash -c "cd /workspace && source scripts/activate.sh"
+```
+
 Then install:
 
 ```sh

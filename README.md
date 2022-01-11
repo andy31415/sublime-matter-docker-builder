@@ -7,21 +7,20 @@ This contains a simple implementation of a sublime build system for matter
 Ensure you have a dockerfile prepared based on chip-build-vscode. 
 Something like below (with the proper github checkout path set):
 
-```
+```sh
 docker run --name bld_vscode --volume $HOME/devel/connectedhomeip:/workspace connectedhomeip/chip-build-vscode:0.5.43 -it /bin/bash
 ```
 
 Then install:
 
-```
+```sh
 ln -s ./matter_build.py ~/.config/sublime-text/Packages/User/
 ln -s ./MatterDockerBuild.sublime-build.py ~/.config/sublime-text/Packages/User/
 ```
 
 Setup a build system in your project, like:
 
-```
-  //...
+```json
   "build_systems": [
      {
          "name": "Matter Docker Build",

@@ -43,7 +43,7 @@ class MatterDockerBuild(sublime_plugin.WindowCommand):
 
     def compute_build_targets(self):
         items = subprocess.check_output([
-            'docker', 'exec', '-w', '/workspace', 'bld_vscode', '/bin/bash', '-c', 
+            'docker', 'exec', '-w', '/workspace', 'bld_vscode', '/bin/bash', '-c',
             'source ./scripts/activate.sh 2>&1 >/dev/null && ./scripts/build/build_examples.py --log-level fatal targets']).split(b'\n')
 
         for item in items:
@@ -81,7 +81,7 @@ class MatterDockerBuild(sublime_plugin.WindowCommand):
 
         self.window.show_quick_panel(
            self.targets(),
-           self.target_input_done,  
+           self.target_input_done,
            selected_index=self.last_selected_index,
            placeholder='Target',
         )
@@ -122,9 +122,10 @@ class MatterDockerBuild(sublime_plugin.WindowCommand):
 
         self.queue_write("Starting build for %s\n" % target)
 
-        # args ="docker exec -t -w /workspace bld_vscode /bin/bash -c".split()
         args ="docker exec -w /workspace bld_vscode /bin/bash -c".split()
 
+        # TODO: this would work if we would not be using the quickselect panel.
+        #       We should have a 'GLOB' in  quickselect which provides a glob prompt
         if '*' in target or '{' in target or '?' in target:
             target_str = '--target-glob "%s"' % target
         else:

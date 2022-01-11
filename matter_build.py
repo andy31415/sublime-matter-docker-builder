@@ -94,6 +94,7 @@ class MatterDockerBuild(sublime_plugin.WindowCommand):
             # Creating the panel implicitly clears any previous contents
             # self.panel = self.window.create_output_panel('matter_build')
             self.panel = self.window.create_output_panel('exec')
+            self.panel.set_read_only(True)
 
         self.window.show_quick_panel(
            self.targets(),
@@ -207,13 +208,10 @@ class MatterDockerBuild(sublime_plugin.WindowCommand):
 
     def do_write(self, text):
         with self.panel_lock:
-            self.panel.set_read_only(False)
             for t in per_line(text):
-              self.panel.run_command('append', {'characters': t})
+              self.panel.run_command('append', {'characters': t, 'force': True, 'scroll_to_end': True})
 
               if MATCH_DEBUG:
                 m = re.compile(FILE_REGEX).match(t)
                 if m:
                   print("  Detected build error: %r" % (m.groups(), ))
-            self.panel.set_read_only(True)
-            self.panel.run_command('move_to', {'to': 'eof', "extend": False})

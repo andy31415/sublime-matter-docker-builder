@@ -101,15 +101,13 @@ class MatterDockerBuild(sublime_plugin.WindowCommand):
             # listing the file info. The result_base_dir sets the
             # path to resolve relative file names against.
             settings = self.panel.settings()
-            #settings.set('result_file_regex', r"^.*[^ ](.+[^:]):(\d+):(\d+): (?:fatal )?((?:error|warning): .+)$")
             settings.set('result_file_regex', FILE_REGEX)
             settings.set('result_line_regex', "")
 
-            # FIXME: this should be a relative path somehow
+            # TODO: this should be dynamic by project directory or given via build
+            # configuration.
             settings.set('result_base_dir', '/home/andrei/devel/connectedhomeip/out/fake')
 
-            # settings.set('result_line_regex', r"^.*[^ ](.+[^:]):(\d+):(\d+): (?:fatal )?((?:error|warning): .+)$")
-            # settings.set('result_line_regex', r"(.+[^:]):(\d+):(\d+): (?:fatal )?((?:error|warning): .+)$")
 
             # do not attempt to interpret syntax
             self.panel.assign_syntax(
@@ -180,7 +178,7 @@ class MatterDockerBuild(sublime_plugin.WindowCommand):
                 self.queue_write('\n[%s]' % msg)
                 break
         print("Matter docker build run loop completed")
-        
+
         with self.panel_lock:
             regions = self.panel.find_all(FILE_REGEX)
             self.panel.add_regions("docker.build.errors", regions=regions, scope="region.redish")

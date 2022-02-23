@@ -145,7 +145,7 @@ class MatterDockerBuild(sublime_plugin.WindowCommand):
         else:
             target_str = '--target "%s"' % target
 
-        args.append('source ./scripts/activate.sh && ./scripts/build/build_examples.py --no-log-timestamps %s build' % target_str)
+        args.append('source ./scripts/activate.sh && ./scripts/build/build_examples.py --enable-flashbundle --no-log-timestamps %s build' % target_str)
 
         self.proc = subprocess.Popen(
             args,

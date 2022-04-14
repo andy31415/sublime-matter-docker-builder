@@ -16,6 +16,7 @@ DOCKER_EXEC_BASH_STR= "podman exec -w /workspace bld_vscode /bin/bash -c"
 
 
 GLOB_TARGET = "CUSTOM GLOB"
+RE_COMPUTE_TARGET = "RE-COMPUTE"
 
 class MatterDockerBuild(sublime_plugin.WindowCommand):
 
@@ -41,6 +42,7 @@ class MatterDockerBuild(sublime_plugin.WindowCommand):
 
             # Also allow custom globbing
             self.build_targets.append([GLOB_TARGET, "Enter a custom glob using * and {} (NOT a regex!)"])
+            self.build_targets.append([RE_COMPUTE_TARGET, "Re-compute build targets"])
 
         return self.build_targets
 
@@ -72,6 +74,9 @@ class MatterDockerBuild(sublime_plugin.WindowCommand):
                                          on_done = self.target_glob_done,
                                          on_change = None,
                                          on_cancel = None)
+        elif target == RE_COMPUTE_TARGET:
+            self.build_targets = None
+            self.targets()
         else:
             self.run_build(target)
 

@@ -45,7 +45,8 @@ class MatterDockerBuild(sublime_plugin.WindowCommand):
 
         with open(TARGETS_PATH, 'rt') as f:
             for item in f.readlines():
-                self.build_targets.append([item.strip(), ])
+                if item.strip():
+                    self.build_targets.append([item.strip(), ])
 
     def recompute_build_targets(self):
         items = subprocess.check_output(
